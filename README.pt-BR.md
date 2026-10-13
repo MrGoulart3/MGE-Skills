@@ -30,3 +30,9 @@ Para atualizar: `git -C ~/MGE-Skills pull` (os links simbólicos acompanham).
 
 ## Licença
 MIT (veja `LICENSE`).
+
+## Relacionados (Related)
+
+- [MGE-AgentPortal](https://github.com/MrGoulart3/MGE-AgentPortal): acesso autenticado aos agentes pelo navegador e painel opcional de recursos do PC.
+- [MGE-LocalCompute](https://github.com/MrGoulart3/MGE-LocalCompute): orçamento de recursos compartilhados, fila noturna e guarda térmica.
+- [MGE-UAH-Orquestra](https://github.com/MrGoulart3/MGE-UAH-Orquestra): orquestração genérica de agentes, modelos de projeto e vigias determinísticos.

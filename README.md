@@ -30,3 +30,9 @@ Update with `git -C ~/MGE-Skills pull`; the symlinks pick up the changes.
 
 ## License
 MIT (see `LICENSE`).
+
+## Related
+
+- [MGE-AgentPortal](https://github.com/MrGoulart3/MGE-AgentPortal): authenticated browser access to agents and an optional PC resources panel.
+- [MGE-LocalCompute](https://github.com/MrGoulart3/MGE-LocalCompute): shared PC resource budgets, nighttime queue and thermal guard.
+- [MGE-UAH-Orquestra](https://github.com/MrGoulart3/MGE-UAH-Orquestra): generic multi-agent orchestration, project templates and deterministic watchers.
