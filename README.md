@@ -1,5 +1,7 @@
 # MGE Skills
 
+**English** · [Português](README.pt-BR.md)
+
 Agent skills for computational chemistry and science communication, built while doing real
 research work. Each folder is one self-contained skill (a `SKILL.md` plus references, templates
 and scripts) that Claude Code, or any agent that reads `SKILL.md`, can load.
