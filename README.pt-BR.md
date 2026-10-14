@@ -10,6 +10,12 @@ scripts) que o Claude Code, ou qualquer agente que leia `SKILL.md`, pode carrega
 |---|---|
 | [`molecular-motion-video`](molecular-motion-video/) | Vídeos narrados de motion graphics, cientificamente corretos, sobre moléculas, materiais e reações (Blender/Cycles). **Os átomos se movem segundo cálculos reais**: trajetórias de dinâmica molecular, caminhos de reação IRC/NEB e modos normais. Também cuida de narração local verificada em qualquer idioma, legendas palavra a palavra, rótulos guiados por dados, etapas de aprovação humana e conferência automática. |
 
+## Vitrine
+
+[![Sal dissolvendo: movimento de uma dinâmica molecular real](molecular-motion-video/examples/salt-dissolving/media/salt_dissolving.gif)](molecular-motion-video/examples/salt-dissolving/README.pt-BR.md)
+
+*Salt dissolving*, feito com `molecular-motion-video`. Um nanocristal de NaCl se dissolve em água, e cada átomo segue uma trajetória real do OpenMM.
+
 Novas skills entram como subpastas.
 
 ## Instalação (Claude Code)

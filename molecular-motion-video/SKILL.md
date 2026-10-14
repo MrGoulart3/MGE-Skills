@@ -7,7 +7,7 @@ description: Produce a professional, narrated, scientifically accurate motion-gr
 
 A gated, iterative protocol for narrated scientific animations. It was distilled from real
 productions (a 30 s, 1080p video abstract with Portuguese narration, and an English showcase of
-salt dissolving driven by molecular dynamics). The protocol is application-agnostic: swap the
+salt dissolving driven by molecular dynamics: `examples/salt-dissolving/`). The protocol is application-agnostic: swap the
 chemistry, keep the gates.
 
 **Core ideas**

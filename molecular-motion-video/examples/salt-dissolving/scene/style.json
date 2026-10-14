@@ -1,0 +1,45 @@
+{
+  "_comment": "Single source of truth for scene (Blender) and post (Pillow/ffmpeg). Hex sRGB.",
+  "elements": {
+    "S": "#F2C14E",
+    "O": "#E8644E",
+    "C": "#6E7A90",
+    "H": "#EDEFF2",
+    "N": "#5B7FE0",
+    "Mg": "#1E9FD0",
+    "Al": "#FF9A33",
+    "Na": "#8F6BFF",
+    "Cl": "#39D98A"
+  },
+  "background": {
+    "bottom": "#0B2233",
+    "top": "#1C1838",
+    "warm_glow": "#FFB35C"
+  },
+  "ui": {
+    "caption": "#FFFFFF",
+    "caption_active": "#F2C14E",
+    "label_bg": "#0B1622",
+    "label_border": "#7FD0EC",
+    "scrim": "#040A12"
+  },
+  "fonts": {
+    "family": "Manrope",
+    "file": "assets/fonts/Manrope.ttf",
+    "caption_weight": 700,
+    "caption_px_1080p": 54,
+    "label_weight": 600,
+    "label_px_1080p": 30
+  },
+  "audio": {
+    "music_gain": 0.28,
+    "target_lufs": -16,
+    "true_peak": -1.5
+  },
+  "charges": {
+    "delta_minus": "#FF5A4E",
+    "delta_plus": "#7FD0EC",
+    "Na": "#FFB35C",
+    "Cl": "#7FD0EC"
+  }
+}

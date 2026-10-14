@@ -1,0 +1,95 @@
+1
+00:00:00,600 --> 00:00:01,830
+Drop a pinch of salt into
+
+2
+00:00:01,680 --> 00:00:02,150
+water,
+
+3
+00:00:02,000 --> 00:00:03,050
+and it seems to vanish.
+
+4
+00:00:03,280 --> 00:00:04,190
+But where does it go?
+
+5
+00:00:04,490 --> 00:00:05,400
+Salt is a crystal:
+
+6
+00:00:05,470 --> 00:00:06,780
+sodium and chloride ions,
+
+7
+00:00:06,870 --> 00:00:08,200
+locked together by opposite charges.
+
+8
+00:00:08,500 --> 00:00:10,350
+Water molecules are tiny magnets of
+
+9
+00:00:10,200 --> 00:00:10,670
+charge:
+
+10
+00:00:10,840 --> 00:00:12,190
+slightly negative at the oxygen,
+
+11
+00:00:12,300 --> 00:00:13,870
+slightly positive at the hydrogens.
+
+12
+00:00:14,170 --> 00:00:15,320
+At the edges of the crystal,
+
+13
+00:00:15,410 --> 00:00:16,120
+they crowd in,
+
+14
+00:00:16,170 --> 00:00:17,300
+oxygens toward sodium,
+
+15
+00:00:17,350 --> 00:00:18,480
+hydrogens toward chloride,
+
+16
+00:00:18,570 --> 00:00:18,960
+and tug.
+
+17
+00:00:19,260 --> 00:00:20,070
+One by one,
+
+18
+00:00:20,100 --> 00:00:21,190
+the ions break free,
+
+19
+00:00:21,280 --> 00:00:22,530
+each wrapped in its own shell
+
+20
+00:00:22,380 --> 00:00:22,890
+of water.
+
+21
+00:00:23,190 --> 00:00:24,140
+That is dissolving:
+
+22
+00:00:24,210 --> 00:00:24,900
+not vanishing,
+
+23
+00:00:25,070 --> 00:00:26,080
+just spreading out,
+
+24
+00:00:25,930 --> 00:00:27,040
+one ion at a time.

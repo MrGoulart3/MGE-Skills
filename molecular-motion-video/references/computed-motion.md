@@ -79,6 +79,7 @@ directly from OpenMM.
 - **Time mapping** (MD time → video time) is a smooth, monotonic function that pins the computed
   events to narration words in `timing.json` (e.g. the `detach` event lands right after the word
   "free"). Export it per frame in `anchors.json` for the on-screen clock.
+- **Pitfall: handler + keyframes.** If you bake the camera (or anything) into keyframes by looping `frame_set()`, the F-curves created in earlier iterations overwrite what the `frame_change_pre` handler just set, so every key ends up equal to frame 1. Re-apply the pose after `frame_set()` before `keyframe_insert()`, and add a post-bake check that compares the keyed camera with the validated one, and that it actually moves.
 - Trim the solvent to what the camera can see (radius around the subject): thousands of molecules
   outside the frame cost render time and add nothing.
 

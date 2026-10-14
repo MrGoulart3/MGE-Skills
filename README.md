@@ -10,6 +10,12 @@ and scripts) that Claude Code, or any agent that reads `SKILL.md`, can load.
 |---|---|
 | [`molecular-motion-video`](molecular-motion-video/) | Narrated, scientifically accurate motion-graphics videos of molecules, materials and reactions (Blender/Cycles). **The atoms move along real calculations**: MD trajectories, IRC/NEB reaction paths, normal modes. It also handles verified local TTS in any language, word-by-word captions, data-driven labels, human approval gates and automated QA. |
 
+## Showcase
+
+[![Salt dissolving: motion replayed from a real MD simulation](molecular-motion-video/examples/salt-dissolving/media/salt_dissolving.gif)](molecular-motion-video/examples/salt-dissolving/)
+
+*Salt dissolving*, made with `molecular-motion-video`. A NaCl nanocrystal dissolves in water, and every atom follows a real OpenMM trajectory.
+
 More skills will be added as subfolders.
 
 ## Install (Claude Code)
