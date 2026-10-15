@@ -2,9 +2,11 @@
 
 **English** · [Português](README.pt-BR.md)
 
-![Salt dissolving — preview](media/salt_dissolving.gif)
+![Salt dissolving](media/salt_dissolving.gif)
 
-A 28 s narrated English video in which a NaCl nanocrystal dissolves in water. **Every atom moves along a real molecular-dynamics trajectory**, not keyframed animation. This is the low-resolution preview (640×360) that passed the human review gate (G2). Full-quality preview: [`media/salt_dissolving_preview.mp4`](media/salt_dissolving_preview.mp4).
+A 28 s narrated English video in which a NaCl nanocrystal dissolves in water. **Every atom moves along a real molecular-dynamics trajectory**, not keyframed animation. Final render (v2, 1920×1080, Cycles with denoising and motion blur), made after the low-resolution preview passed the human review gate (G2). Video: [`media/salt_dissolving_1080p.mp4`](media/salt_dissolving_1080p.mp4).
+
+v2 changes after review: larger δ−/δ+ labels pushed outside the highlighted water, a camera that follows that water through its close-up, and a close-up on the leaving Cl⁻ with the rest of the crystal dimmed.
 
 ## What it shows
 1. A salt crystal in water.

@@ -2,9 +2,11 @@
 
 [English](README.md) · **Português**
 
-![Sal dissolvendo — prévia](media/salt_dissolving.gif)
+![Sal dissolvendo](media/salt_dissolving.gif)
 
-Vídeo narrado em inglês, de 28 s, em que um nanocristal de NaCl se dissolve em água. **Cada átomo segue uma trajetória real de dinâmica molecular**, não uma animação por keyframes. Esta é a prévia em baixa resolução (640×360) aprovada na etapa de revisão humana (G2). Vídeo: [`media/salt_dissolving_preview.mp4`](media/salt_dissolving_preview.mp4).
+Vídeo narrado em inglês, de 28 s, em que um nanocristal de NaCl se dissolve em água. **Cada átomo segue uma trajetória real de dinâmica molecular**, não uma animação por keyframes. Render final (v2, 1920×1080, Cycles com denoiser e motion blur), feito depois que a prévia em baixa resolução foi aprovada na revisão humana (G2). Vídeo: [`media/salt_dissolving_1080p.mp4`](media/salt_dissolving_1080p.mp4).
+
+Mudanças da v2 após a revisão: rótulos δ−/δ+ maiores e fora da água em destaque, câmera que acompanha essa água no close, e close no Cl⁻ que sai com o resto do cristal escurecido.
 
 ## O cálculo
 - **Simulação:** OpenMM 8.6 com água TIP3P e íons de Joung–Cheatham. O sistema tem NaCl 4×4×4 e 2113 águas, numa caixa de 40,2 Å, com PME e passo de 2 fs.

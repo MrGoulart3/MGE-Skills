@@ -54,6 +54,10 @@ class Label:
     start: float
     end: float
     runs: tuple[Run, ...]
+    push: float = 0.0  # v2: afasta o rótulo do centro da molécula (px a 1920), para não cobrir átomos
+
+
+HERO = ("hero_o", "hero_h1", "hero_h2")
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -82,18 +86,22 @@ def _collides(first: Rect, second: Rect, gap: float = 0) -> bool:
 
 
 def _labels(times: dict[str, Any]) -> tuple[Label, ...]:
+    # v2 (14/10): rótulos maiores; δ± presos à água em destaque enquanto o close dura (até o fim de C).
     scenes, events = times["scenes"], times["events"]
+    delta_end = scenes["C"][0] + 0.93 * (scenes["C"][1] - scenes["C"][0])  # some antes do recuo da câmera
     return (
         Label("Na", "label_na", events["label_ions"], scenes["C"][0] - 0.3,
-              (("Na", 30, 0), ("+", 20, -12))),
+              (("Na", 38, 0), ("+", 25, -15))),
         Label("Cl", "label_cl", events["label_ions"] + 0.35, scenes["C"][0] - 0.3,
-              (("Cl", 30, 0), ("−", 20, -12))),
-        Label("dminus", "hero_o", events["delta_minus"], scenes["D"][0] + 0.8,
-              (("δ−", 30, 0),)),
-        Label("dplus", "hero_h1", events["delta_plus"], scenes["D"][0] + 0.8,
-              (("δ+", 30, 0),)),
+              (("Cl", 38, 0), ("−", 25, -15))),
+        Label("dminus", "hero_o", events["delta_minus"], delta_end,
+              (("δ−", 48, 0),), 150),
+        Label("dplus", "hero_h1", events["delta_plus"], delta_end,
+              (("δ+", 48, 0),), 150),
+        Label("dplus2", "hero_h2", events["delta_plus"] + 0.2, delta_end,
+              (("δ+", 48, 0),), 150),
         Label("shell", "ion1", events["shell"], scenes["F"][0] + 1.2,
-              (("hydration shell", 28, 0),)),
+              (("hydration shell", 36, 0),)),
     )
 
 
@@ -256,6 +264,26 @@ class Painter:
                 return box
         raise ValueError("Não foi possível posicionar os rótulos sem colisões.")
 
+    def _push_label(self, frame: int, label: Label, anchor: tuple[float, float],
+                    width: float, height: float, occupied: list[Rect]) -> Rect | None:
+        """Põe o rótulo para FORA da água em destaque (direção centro→átomo), girando se colidir."""
+        entries = self.data["anchors"][str(frame)]
+        center = np.mean([(entries[n]["x"] * self.scale, entries[n]["y"] * self.scale) for n in HERO], axis=0)
+        direction = np.array(anchor) - center
+        if np.linalg.norm(direction) < 1e-6:
+            direction = np.array([1.0, -1.0])
+        base = math.atan2(direction[1], direction[0])
+        margin, ceiling = 36 * self.scale, self.size[1] * 0.80
+        for turn in (0, 25, -25, 50, -50, 80, -80):
+            angle = base + math.radians(turn)
+            reach = label.push * self.scale + 0.5 * abs(width * math.cos(angle)) + 0.5 * abs(height * math.sin(angle))
+            cx, cy = anchor[0] + reach * math.cos(angle), anchor[1] + reach * math.sin(angle)
+            box = (cx - width / 2, cy - height / 2, cx + width / 2, cy + height / 2)
+            if (margin <= box[0] and box[2] <= self.size[0] - margin and margin <= box[1] and box[3] <= ceiling
+                    and not any(_collides(box, other, 12 * self.scale) for other in occupied)):
+                return box
+        return None
+
     def _technical(self, frame: int) -> tuple[Image.Image, list[Rect]]:
         time = (frame - 1) / FPS
         layer, occupied = self._blank(), []
@@ -277,7 +305,11 @@ class Painter:
             width = metrics[2] - metrics[0] + 2 * padding
             height = metrics[3] - metrics[1] + 2 * padding
             slide = 8 * self.scale * (1 - min(1.0, (time - label.start) / 0.25))
-            box = self._place_label(anchor, width, height, occupied, slide)
+            box = None
+            if label.push:
+                box = self._push_label(frame, label, anchor, width, height, occupied)
+            if box is None:
+                box = self._place_label(anchor, width, height, occupied, slide)
             item = self._blank()
             draw = ImageDraw.Draw(item)
             endpoint = (min(max(anchor[0], box[0]), box[2]),

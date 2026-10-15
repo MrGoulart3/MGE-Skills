@@ -24,6 +24,8 @@ OUTPUT = DIRECTORY.parents[1] / "render" / "sal_en"
 SEED = 104524
 STYLE = json.loads((DIRECTORY / "style.json").read_text())
 RADII = {"Na": 0.62, "Cl": 1.05, "O": 0.40, "H": 0.24}
+# v2 (14/10): close no íon que sai em E (raio da 1ª camada) e close da água em destaque mantido até 90% de C.
+E_RADIUS, E_HEIGHT, HERO_HOLD = 5.0, 0.45, 0.90
 
 
 @dataclass(frozen=True)
@@ -484,7 +486,7 @@ def configure_render(scene: bpy.types.Scene, args: argparse.Namespace, timeline:
     scene.render.use_persistent_data = True
     scene.render.use_overwrite, scene.render.use_placeholder = False, True
     scene.render.use_lock_interface = True
-    scene.cycles.samples = 64 if args.final else 16
+    scene.cycles.samples = args.samples or (64 if args.final else 16)
     scene.cycles.seed, scene.cycles.use_animated_seed = SEED, False
     scene.cycles.use_adaptive_sampling, scene.cycles.adaptive_threshold = True, .02
     scene.cycles.use_denoising = True; scene.cycles.denoiser = 'OPENIMAGEDENOISE'
@@ -523,14 +525,14 @@ class Animation:
         self.direction = Vector((-.7, -1., .65)).normalized()
         self.knots = []
         self.camera_samples = None
-        for name, height, x in [('A', .35, .5), ('B', .70, .5), ('C', .22, .5), ('D', .55, .5), ('E', .40, .5), ('F', .40, .68)]:
+        for name, height, x in [('A', .35, .5), ('B', .70, .5), ('C', .22, .5), ('D', .55, .5), ('E', E_HEIGHT, .5), ('F', .40, .68)]:
             seconds = t.at(name, .5 if name != 'F' else .65)
             p = md.sample(mapping(seconds))
             if name == 'C':
                 bounds = hero_bounds(md, p, (-self.direction).to_track_quat('-Z', 'Y'))
                 center = Vector(p[md.hero].mean(axis=0))
             elif name == 'E':
-                bounds = padded_bounds(p[md.focus], 3.2); center = Vector(p[md.focus].mean(axis=0))
+                bounds = padded_bounds(p[md.focus[:1]], E_RADIUS); center = Vector(p[md.focus[0]])
             else:
                 bound = md.bound_ions(p)
                 bounds = padded_bounds(p[bound], 1.05); center = Vector(p[bound].mean(axis=0))
@@ -542,6 +544,9 @@ class Animation:
         opening = first[2] + (first[1] - first[2]) * 1.08
         self.knots.insert(0, (0., opening, first[2], first[3] * 1.08))
         self.knots.append((t.duration, *self.knots[-1][1:]))
+        # v2: segura o close da água em destaque até o fim de C (δ−/δ+ legíveis).
+        hold = next(k for k in self.knots if abs(k[0] - t.at('C', .5)) < 1e-9)
+        self.knots.insert(self.knots.index(hold) + 1, (t.at('C', HERO_HOLD), *hold[1:]))
         surface = md.positions[0]
         for element in ('Na', 'Cl'):
             indices = md.groups[element]
@@ -580,12 +585,20 @@ class Animation:
         e0, e1 = self.t.scenes['E']
         follow = ease(seconds, e0, self.t.at('E', .15)) * (1-ease(seconds, e1, self.t.at('F', .35)))
         if follow:
-            center = Vector(p[self.md.focus].mean(axis=0))
-            bounds = padded_bounds(p[self.md.focus], 3.2)
-            safe_location, safe_target = solve_framing(scene, bounds, center, self.direction, .44, .5)
+            center = Vector(p[self.md.focus[0]])
+            bounds = padded_bounds(p[self.md.focus[:1]], E_RADIUS)
+            safe_location, safe_target = solve_framing(scene, bounds, center, self.direction, E_HEIGHT, .5)
             location = location.lerp(safe_location, follow)
             target = target.lerp(safe_target, follow)
             focus = (1-follow)*focus + follow*(location - Vector(p[self.md.focus[0]])).length
+        # v2: durante o close de C a câmera acompanha a água em destaque (ela se move na DM).
+        hold = ease(seconds, self.t.at('C', .3), self.t.at('C', .5)) * (1-ease(seconds, self.t.at('C', HERO_HOLD), self.t.at('D', .1)))
+        if hold:
+            center = Vector(p[self.md.hero].mean(axis=0))
+            bounds = hero_bounds(self.md, p, (-self.direction).to_track_quat('-Z', 'Y'))
+            framed, aimed = solve_framing(scene, bounds, center, self.direction, .22, .5)
+            location = location.lerp(framed, hold)
+            target = target.lerp(aimed, hold)
         for name, height, x in [('A', .35, .5), ('B', .70, .5), ('D', .55, .5), ('F', .40, .68)]:
             start, end = self.t.scenes[name]
             weight = ease(seconds, start, self.t.at(name, .2))
@@ -598,7 +611,7 @@ class Animation:
                 location = location.lerp(framed, weight)
                 target = target.lerp(aimed, weight)
                 focus = (1-weight)*focus + weight*(location-center).length
-        hero_focus = ease(seconds, self.t.at('B', .85), self.t.at('C', .15)) * (1-ease(seconds, self.t.at('C', .85), self.t.at('D', .3)))
+        hero_focus = ease(seconds, self.t.at('B', .85), self.t.at('C', .15)) * (1-ease(seconds, self.t.at('C', HERO_HOLD), self.t.at('D', .3)))
         focus = (1-hero_focus)*focus + hero_focus*(location-Vector(p[self.md.hero].mean(axis=0))).length
         camera.location = location
         camera.rotation_quaternion = (target-location).to_track_quat('-Z', 'Y')
@@ -640,20 +653,24 @@ class Animation:
         haze = np.clip((12.-distances)/4.5, 0., 1.)
         visibility = haze*haze*(3-2*haze)
         camera = np.array(self.scene.camera.location)
-        target = p[md.hero].mean(axis=0) if name == 'C' else p[md.focus].mean(axis=0) if name == 'E' else p[md.bound_ions(p)].mean(axis=0)
+        target = p[md.hero].mean(axis=0) if name == 'C' else p[md.focus[0]] if name == 'E' else p[md.bound_ions(p)].mean(axis=0)
         ray = target-camera
         length = np.linalg.norm(ray)
         direction = ray/length
         along = (centers-camera) @ direction
         radial = np.linalg.norm(centers-camera-along[:, None]*direction, axis=-1)
         in_front = (along > 0) & (along < length)
-        cull = np.clip((radial-6.)/.75, 0., 1.)
+        cull = np.clip((radial-(8. if name == 'E' else 6.))/.75, 0., 1.)  # v2: close de E mais largo
         visibility *= np.where(in_front, cull*cull*(3-2*cull), 1.)
         if name == 'E':
             first_shell = np.logical_or.reduce([md.shell(p, ion) for ion in md.focus])
             visibility[first_shell] = 1.
             highlight[members] = np.repeat(np.maximum(weights*amount, first_shell.astype(float)), 3)
-        hero_amount = ease(seconds, t.at('B', .85), t.at('C', .15)) * (1-ease(seconds, t.at('C', .85), t.at('D', .3)))
+            # v2: no close de E o cristal fica em segundo plano (mais escuro); o íon que sai e sua camada brilham.
+            spotlight = ease(seconds, t.at('E', 0), t.at('E', .2)) * (1-ease(seconds, t.at('E', .9), t.at('F', .15)))
+            others = np.setdiff1d(md.ions, md.focus[:1])
+            highlight[others] = 1-spotlight
+        hero_amount = ease(seconds, t.at('B', .85), t.at('C', .15)) * (1-ease(seconds, t.at('C', HERO_HOLD), t.at('D', .3)))
         near_hero = np.linalg.norm(centers-p[md.hero].mean(axis=0), axis=-1) <= 7.5
         visibility[near_hero] *= 1-hero_amount
         fade[members] = np.repeat(visibility, 3)
@@ -734,8 +751,8 @@ def projected_radius(scene: bpy.types.Scene, position: np.ndarray, radius: float
     return abs(a.y-b.y)*1080
 
 
-def water_visibility_metrics(animation: Animation, subject: np.ndarray) -> tuple[int, float]:
-    """Conta instâncias e estima a união projetada à frente do sujeito em 384×216."""
+def water_visibility_metrics(animation: Animation, subject: np.ndarray, own: np.ndarray | None = None) -> tuple[int, float]:
+    """Conta instâncias e estima a união projetada à frente do sujeito em 384×216 (`own`: águas que SÃO o sujeito)."""
     scene, md, p = animation.scene, animation.md, animation.positions
     fades = np.empty(len(md.waters), dtype=np.float32)
     animation.objects['O'].data.attributes['fade'].data.foreach_get('value', fades)
@@ -745,8 +762,8 @@ def water_visibility_metrics(animation: Animation, subject: np.ndarray) -> tuple
     camera = scene.camera
     subject_depth = world_to_camera_view(scene, camera, Vector(subject)).z
     coverage = np.zeros((216, 384), dtype=bool)
-    for water, fade in zip(md.waters, fades):
-        if fade <= .001:
+    for k, (water, fade) in enumerate(zip(md.waters, fades)):
+        if fade <= .001 or (own is not None and own[k]):
             continue
         for index in water:
             point = world_to_camera_view(scene, camera, Vector(p[index]))
@@ -814,15 +831,16 @@ def validate(animation: Animation) -> None:
     for name in 'ABCDEF':
         seconds = t.at(name, .5 if name != 'F' else .8)
         scene.frame_set(t.frame(seconds)); p = animation.positions
-        subject = p[md.hero] if name == 'C' else p[md.focus] if name == 'E' else p[md.bound_ions(p)]
-        radius = .4 if name == 'C' else 3.2 if name == 'E' else 1.05
+        subject = p[md.hero] if name == 'C' else p[md.focus[:1]] if name == 'E' else p[md.bound_ions(p)]
+        radius = .4 if name == 'C' else E_RADIUS if name == 'E' else 1.05
         l,r,b,top = screen_bounds(scene, padded_bounds(subject, radius))
         if name == 'C':
             l,r,b,top = screen_bounds(scene, hero_bounds(md, p, scene.camera.rotation_quaternion))
         brightness = estimate_mean_brightness(animation)
         print(f'CENA {name}: centro=({(l+r)/2:.4f},{(b+top)/2:.4f}), altura={top-b:.4f}, brilho estimado={brightness:.4f}')
         require(brightness >= .03, f'Cena {name} escura')
-        visible, occluding = water_visibility_metrics(animation, subject.mean(axis=0))
+        own = md.shell(p, md.focus[0]) if name == 'E' else None  # v2: a 1ª camada é o assunto do close
+        visible, occluding = water_visibility_metrics(animation, subject.mean(axis=0), own)
         print(f'ÁGUAS {name}: {visible} visíveis; cobertura à frente={occluding:.2%} (união projetada estimada)')
         require(visible <= (1200 if name == 'F' else 550), f'Cena {name}: águas visíveis demais ({visible})')
         require(occluding <= .08, f'Cena {name}: águas cobrem mais de 8% do quadro à frente do sujeito')
@@ -857,7 +875,7 @@ def validate(animation: Animation) -> None:
     safe = [1., 0., 1., 0.]
     for frame in range(t.frame(t.at('E',0)), t.frame(t.at('E',1))):
         scene.frame_set(frame)
-        for name in ('ion1','ion2'):
+        for name in ('ion1',):  # v2: o close de E acompanha só o íon que sai
             a = animation.anchors()[name]; x,y = a['x']/1920, a['y']/1080
             safe = [min(safe[0],x),max(safe[1],x),min(safe[2],y),max(safe[3],y)]
             require(a['visivel'] and .2 <= x <= .8 and .2 <= y <= .8, f'{name} fora da área segura no quadro {frame}')
@@ -879,6 +897,7 @@ def parse_arguments(timeline: Timeline) -> argparse.Namespace:
         modes.add_argument('--'+name, action='store_true')
     parser.add_argument('--frames', type=frame_range, default=None)
     parser.add_argument('--threads', type=thread_count, default=4)
+    parser.add_argument('--samples', type=int, default=None)  # v2: amostras Cycles (padrão 64 final / 16 prévia)
     parser.add_argument('--traj', type=Path, default=None)
     parser.add_argument('--events', type=Path, default=None)
     args = parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])

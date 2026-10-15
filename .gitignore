@@ -4,3 +4,4 @@ __pycache__/
 render/
 *.mp4
 *.wav
+!molecular-motion-video/examples/*/media/*.mp4
