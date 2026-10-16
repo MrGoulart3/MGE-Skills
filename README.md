@@ -32,6 +32,24 @@ git clone https://github.com/MrGoulart3/MGE-Skills.git ~/MGE-Skills
 
 Update with `git -C ~/MGE-Skills pull`; the symlinks pick up the changes.
 
+## Quick setup
+
+```bash
+cd MGE-Skills/molecular-motion-video/env
+conda env create -f environment-render.yml     # or: micromamba create -f ...
+conda env create -f environment-tts.yml
+conda env create -f environment-calc.yml
+# Blender is not on conda: official 4.2 LTS tarball
+BLENDER_DIR=$HOME/blender; mkdir -p "$BLENDER_DIR"
+curl -L https://download.blender.org/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz | tar -xJ -C "$BLENDER_DIR" --strip-components=1
+export BLENDER="$BLENDER_DIR/blender"
+bash doctor.sh        # checks only, installs nothing; prints OK/MISSING
+```
+
+Optional cluster: copy `cluster/cluster.example.yaml` to `cluster.yaml`, then
+`python3 cluster/run_remote.py submit <job_dir> -- <command>` (see `status`, `fetch`, `wait`, `--dry-run`).
+Workflow tips: `molecular-motion-video/references/iteration-loop.md`.
+
 ## Principles shared by these skills
 - **Real science first:** geometry from crystallographic or computed data, motion from actual
   calculations, every claim listed with its source and validated by a human.

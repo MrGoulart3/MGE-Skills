@@ -1,0 +1,11 @@
+# Computed-motion env (MD / semi-empirical QM).  Create:  conda env create -f environment-calc.yml
+name: mmv-calc
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - openmm
+  - tblite-python
+  - xtb
+  - ase
+  - numpy
+  - scipy

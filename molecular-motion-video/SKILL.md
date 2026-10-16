@@ -66,6 +66,11 @@ How to beat the original result: `references/improvements.md`.
 9. Final: split with `scripts/frame_ranges.py split`, render chunks (resumable), `check`, compose,
    then `scripts/deliver.py finalize` and `scripts/deliver.py qa`.
 
+## Setup
+Environment kit in `env/` (conda YAMLs for render, TTS and calculation, plus `env/doctor.sh`, which only checks and
+never installs). Optional remote execution: `cluster/` (`cluster.example.yaml`, `run_remote.py`). How to iterate
+efficiently with a coding agent: `references/iteration-loop.md`. Run `bash env/doctor.sh` first.
+
 ## Tooling assumptions
 - Blender 4.2 LTS headless (`blender -b -t N -P scene.py -- --mode`); Cycles CPU is fine.
   Needs glibc ≥ 2.28 (old cluster nodes may only run Blender ≤ 3.x).

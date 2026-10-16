@@ -1,0 +1,11 @@
+# Rendering / post-production env.  Create:  conda env create -f environment-render.yml
+# Blender is NOT on conda: download the official 4.2 LTS tarball (see README / doctor.sh).
+name: mmv-render
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - numpy
+  - pillow>=10
+  - ffmpeg>=6
+  - ase
+  - scipy

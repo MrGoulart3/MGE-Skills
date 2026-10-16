@@ -1,0 +1,13 @@
+# Narration env (verified local TTS + Whisper check).  Create:  conda env create -f environment-tts.yml
+name: mmv-tts
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - --extra-index-url https://download.pytorch.org/whl/cpu
+      - torch
+      - torchaudio
+      - chatterbox-tts
+      - faster-whisper
+      - "setuptools<81"

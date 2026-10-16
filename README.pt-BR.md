@@ -32,6 +32,24 @@ git clone https://github.com/MrGoulart3/MGE-Skills.git ~/MGE-Skills
 
 Para atualizar: `git -C ~/MGE-Skills pull` (os links simbólicos acompanham).
 
+## Instalação rápida
+
+```bash
+cd MGE-Skills/molecular-motion-video/env
+conda env create -f environment-render.yml     # ou: micromamba create -f ...
+conda env create -f environment-tts.yml
+conda env create -f environment-calc.yml
+# O Blender não está no conda: tarball oficial 4.2 LTS
+BLENDER_DIR=$HOME/blender; mkdir -p "$BLENDER_DIR"
+curl -L https://download.blender.org/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz | tar -xJ -C "$BLENDER_DIR" --strip-components=1
+export BLENDER="$BLENDER_DIR/blender"
+bash doctor.sh        # só verifica, não instala; mostra OK/MISSING
+```
+
+Cluster (opcional): copie `cluster/cluster.example.yaml` para `cluster.yaml` e use
+`python3 cluster/run_remote.py submit <pasta_do_job> -- <comando>` (há `status`, `fetch`, `wait`, `--dry-run`).
+Dicas de fluxo: `molecular-motion-video/references/iteration-loop.md`.
+
 ## Princípios comuns
 - **Ciência real primeiro:** geometria de dados cristalográficos ou calculados, movimento vindo de
   cálculos de fato, e cada afirmação listada com a fonte e validada por uma pessoa.
