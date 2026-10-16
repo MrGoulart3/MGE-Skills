@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # doctor.sh - check (never install) what molecular-motion-video needs.
 # Verifica (nunca instala) o que a skill precisa.
+# Env: MIN_DISK_GB=20 MIN_RAM_GB=8 (planning thresholds; adapt to your project)
 # Env: BLENDER=/path/to/blender  ENV_RENDER ENV_TTS ENV_CALC (env names; defaults mmv-render/mmv-tts/mmv-calc)
+MIN_DISK_GB="${MIN_DISK_GB:-20}"
+MIN_RAM_GB="${MIN_RAM_GB:-8}"
 bad=0
 ok(){ printf '  OK       %s\n' "$1"; }
 miss(){ printf '  MISSING  %s\n' "$1"; bad=$((bad+1)); }
@@ -35,16 +38,16 @@ if [ -z "$RUN" ]; then miss "conda or micromamba"; else
 fi
 
 echo "[fonts]"
-if command -v fc-list >/dev/null && fc-list 2>/dev/null | grep -qi manrope; then ok "Manrope"
-elif command -v fc-list >/dev/null && fc-list 2>/dev/null | grep -qi "DejaVu\|Liberation\|Noto"; then warn "Manrope absent; fallback font available (set it in style.json)"; ok "fallback font"
-else miss "fonts (install Manrope, or DejaVu/Noto/Liberation)"; fi
+if command -v fc-list >/dev/null && fc-list 2>/dev/null | grep -qi "DejaVu\|Liberation\|Noto\|Manrope"; then
+  ok "font family available (set FONT/SYMBOL_FONT for example post scripts)"
+else miss "fonts (install DejaVu, Noto, Liberation or your preferred font)"; fi
 
 echo "[resources]"
 d=$(df -Pk . | awk 'NR==2{printf "%d",$4/1048576}')
-[ "$d" -ge 20 ] && ok "free disk: ${d} GB" || miss "free disk: ${d} GB (< 20 GB)"
+[ "$d" -ge "$MIN_DISK_GB" ] && ok "free disk: ${d} GB" || miss "free disk: ${d} GB (< ${MIN_DISK_GB} GB)"
 n=$(nproc 2>/dev/null || echo 1); ok "CPU threads: $n"
 r=$(awk '/MemTotal/{printf "%d",$2/1048576}' /proc/meminfo 2>/dev/null || echo 0)
-[ "$r" -ge 8 ] && ok "RAM: ${r} GB" || miss "RAM: ${r} GB (< 8 GB)"
+[ "$r" -ge "$MIN_RAM_GB" ] && ok "RAM: ${r} GB" || miss "RAM: ${r} GB (< ${MIN_RAM_GB} GB)"
 
 echo
 if [ $bad -eq 0 ]; then echo "Summary: all OK"; exit 0; else echo "Summary: $bad item(s) MISSING / itens faltando"; exit 1; fi

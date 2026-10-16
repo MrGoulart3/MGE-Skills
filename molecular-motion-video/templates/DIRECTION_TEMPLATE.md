@@ -26,4 +26,7 @@ Per scene: path knots, focus target, and the framing goal (subject centre x/y as
 - **`--final`:** 1920×1080, 64 spp, adaptive 0.02, OIDN, motion blur, persistent data, `use_overwrite=False`, `use_placeholder=True`.
 - **Arguments:** `--frames a-b`, `--threads N`. Fixed seeds. Output to `render/<mode>/####.png`.
 
-Do NOT render; validate with `--check`. Reply in ≤ 10 lines.
+## Execution settings
+- Local or remote execution, scheduler/allocation and thread count:
+- Preview/final resolution and samples (the values above are starting defaults):
+- Review responsibilities and approval gates: validate with `--check`, then obtain G2 before final rendering.

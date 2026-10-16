@@ -5,3 +5,14 @@ render/
 *.mp4
 *.wav
 !molecular-motion-video/examples/*/media/*.mp4
+
+# Local execution settings and generated scientific data
+cluster.yaml
+.mmv_jobs.json
+*.npz
+anchors.json
+.vevn/
+.venv/
+
+# Local audit report
+/GENERALIZACAO.md

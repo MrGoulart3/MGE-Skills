@@ -1,15 +1,14 @@
 # Direction: "Salt dissolving" (Blender 4.2 / Cycles), showcase video of the molecular-motion-video skill
 
 Read first:
-- `~/.claude/skills/molecular-motion-video/SKILL.md`, plus `references/protocol.md` and `references/critique-rubric.md`;
-- `cenas/sal_en/SCRIPT.md`: scenes A–F, events and claims;
-- `cenas/sal_en/MD_SPEC.md`: the data contract of `md/traj.npz` and `md/events.json`;
-- `cenas/sal_en/style.json`: colours. Create it from `cenas/agua_gas/style.json`, adding Na `#8F6BFF` (violet), Cl `#39D98A` (green), δ− `#FF5A4E`, δ+ `#7FD0EC`.
+- `../../SKILL.md`, plus `../../references/protocol.md` and `../../references/critique-rubric.md`;
+- `SCRIPT.md`: scenes A–F, events and claims;
+- `MD_SPEC.md`: the data contract of `md/traj.npz` and `md/events.json`;
+- `scene/style.json`: colours. Adapt `../../templates/style.json`, adding Na `#8F6BFF` (violet), Cl `#39D98A` (green), δ− `#FF5A4E`, δ+ `#7FD0EC`.
 
-Write `cenas/sal_en/sal_en.py`. Reuse (copy, never import or modify) the proven utilities:
-- from `cenas/sox/hdl_sox.py` and `cenas/agua_gas/agua_gas.py`: Timeline (reads `timing/timing.json` with keys `scenes`, `events`, `duration`, `frames`, `fps`; times are NEVER hand-coded), `ease`, materials, World and compositor (Glare/bloom, AgX, mist), camera with DoF, `solve_framing`, `project_anchor`/`export_anchors`, `frame_range`, `thread_count`, `parse_arguments`, and the modes/arguments.
-- The **micro world of `agua_gas.py` (scene B) is the reference look the requester liked**: glossy spheres, coral O, pearl H, blue mist, soft bokeh. Keep that look.
-- The requester HATED the macro syringe world. **There are no macro objects in this video.**
+Adapt the public `scene/sal_en.py`. Reusable utilities include: Timeline (reads `timing/timing.json` with keys `scenes`, `events`, `duration`, `frames`, `fps`; times are NEVER hand-coded), `ease`, materials, World and compositor (Glare/bloom, AgX, mist), camera with DoF, `solve_framing`, `project_anchor`/`export_anchors`, `frame_range`, `thread_count`, `parse_arguments`, and the modes/arguments.
+- Example look: glossy spheres, coral O, pearl H, blue mist and soft bokeh. Adjust these choices to your own brief.
+- This example stays at the molecular scale.
 
 ## Data-driven motion (the core)
 - **Loading:** load `md/traj.npz` with numpy (`positions` (F, N, 3) Å, `time_ps`, `element`, `molecule`) and `md/events.json`.
@@ -32,7 +31,7 @@ Write `cenas/sal_en/sal_en.py`. Reuse (copy, never import or modify) the proven 
 ## Look
 - **World:** deep teal → indigo gradient, mist (depth), ≤ 20 far bokeh orbs; no visible planes; key + cool rim light.
 - **Ions:** Na⁺ satin violet, Cl⁻ satin green, slight subsurface/sheen, thin rim emission.
-- **Waters:** coral O / pearl H as in `agua_gas.py`; highlighted shells slightly brighter. Optional: a very faint translucent "shell bubble" (sphere, radius ≈ first-shell distance) around a detaching ion during E, on `shell`.
+- **Waters:** coral O / pearl H as specified in `scene/style.json`; highlighted shells slightly brighter. Optional: a very faint translucent "shell bubble" (sphere, radius ≈ first-shell distance) around a detaching ion during E, on `shell`.
 - **Camera:** one continuous camera with eased curves, DoF always on. Framing:
   - **A:** start defocused (bokeh) and pull focus onto the crystal on `reveal`; crystal ≈ 35 % of the frame height.
   - **B:** close on a crystal face, lattice filling ≈ 70 % of the height.
@@ -41,7 +40,7 @@ Write `cenas/sal_en/sal_en.py`. Reuse (copy, never import or modify) the proven 
   - **E:** follow the detaching ion with its shell (it must stay inside the central 60 % of the frame).
   - **F:** pull back; crystal in the right third (centre x ≈ 0.68, height ≈ 45 %); clean left half for the title. Solve framings numerically (`solve_framing`).
 
-## Anchors (`cenas/sal_en/anchors.json`, per frame, px at 1920×1080)
+## Anchors (`anchors.json`, per frame, px at 1920×1080)
 - `crystal_center`;
 - `label_na` (a surface Na⁺ facing the camera in B) and `label_cl`;
 - `hero_o`, `hero_h1`, `hero_h2`;
@@ -61,10 +60,10 @@ Write `cenas/sal_en/sal_en.py`. Reuse (copy, never import or modify) the proven 
 - **`--preview`:** ~12 key frames (the scene starts/ends and the events).
 - **`--motion`:** all frames at 640×360, 16 spp, OIDN on, no motion blur.
 - **`--final`:** 1920×1080, 64 spp, adaptive 0.02, OIDN, motion blur, `use_persistent_data=True`, `use_overwrite=False`, `use_placeholder=True`.
-- **Output:** `render/sal_en/<mode>/####.png`, relative to the project root, as in `agua_gas.py`. Fixed seeds.
+- **Output:** `render/sal_en/<mode>/####.png`, relative to this example directory. Fixed seeds.
 
-## Testing without the real MD (it is running in parallel)
-- Write `cenas/sal_en/tools/fake_traj.py`. It generates a synthetic `md/traj_fake.npz` + `md/events_fake.json` that follows the contract:
+## Testing without the real MD
+- Run `md/fake_traj.py`. It generates a synthetic `md/traj_fake.npz` + `md/events_fake.json` that follows the contract:
   - 4×4×4 rocksalt;
   - ~600 random rigid waters with small thermal jitter;
   - one Na⁺ and one Cl⁻ leaving the corner with 6 waters carried along;
@@ -72,7 +71,7 @@ Write `cenas/sal_en/sal_en.py`. Reuse (copy, never import or modify) the proven 
 - `sal_en.py` takes `--traj <path>`, defaulting to `md/traj.npz` and falling back to the fake one if the real one is absent.
 - If `timing/timing.json` does not exist yet, create a provisional one with ~32 s, scenes A 0–5, B 5–10.5, C 10.5–17, D 17–23, E 23–28, F 28–32.5, and plausible event times. Mark it `"provisional": true`.
 
-## Execution rules (shared PC)
-- You MAY run Blender locally, but ONLY through `<local-job-limiter> 4 blender -b -t 4 -P cenas/sal_en/sal_en.py -- --check --traj ...`. That means at most 4 threads, and only `--check` or at most 2–3 `--preview` frames at 640×360 (`--frames a-b`). NO full renders locally; I render on the cluster.
-- Edit only files under `cenas/sal_en/`.
-- Reply in ≤ 15 lines: architecture, how to run, what `--check` printed, and known limitations.
+## Execution settings
+- Run locally or remotely according to your allocation. `--threads N` controls scene threads (default 4); also pass `-t N` to Blender. Start with `--check` and a few `--preview` frames before longer jobs.
+- For remote jobs, adapt `../../cluster/cluster.example.yaml` and use `../../cluster/run_remote.py`. CPU/load budgets are configurable; site scheduler rules take precedence.
+- Keep work in your project directory and obtain G2 before final rendering. Record the validation output and known limitations.

@@ -1,6 +1,6 @@
 """Trajetória SINTÉTICA para QA visual; não representa uma simulação de MD.
 
-Uso: python3 cenas/sal_en/tools/fake_traj.py [--out cenas/sal_en/md].
+Uso: python3 md/fake_traj.py [--out md] (na pasta do exemplo).
 """
 from __future__ import annotations
 

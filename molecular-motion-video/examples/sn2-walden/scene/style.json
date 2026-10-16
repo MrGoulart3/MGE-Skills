@@ -25,8 +25,8 @@
     "scrim": "#040A12"
   },
   "fonts": {
-    "family": "Manrope",
-    "file": "assets/fonts/Manrope.ttf",
+    "family": "DejaVu Sans",
+    "file": "DejaVuSans.ttf",
     "caption_weight": 700,
     "caption_px_1080p": 54,
     "label_weight": 600,

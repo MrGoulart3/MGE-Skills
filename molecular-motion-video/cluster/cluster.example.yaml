@@ -1,11 +1,12 @@
-# Copy to cluster.yaml and edit. Never commit real hostnames/credentials.
-host: my-cluster            # ssh alias from ~/.ssh/config (key-based login, no password prompts)
+# Fictional paths/SSH alias: copy to cluster.yaml and adapt to your site.
+# Never commit real hostnames/credentials. Local cluster.yaml is gitignored.
+host: example-cluster            # ssh alias from ~/.ssh/config (key-based login, no password prompts)
 remote_workdir: mmv_jobs    # relative to remote $HOME, or absolute
 scheduler: none             # none | slurm | pbs
-threads: 8                  # threads/cpus per job
-max_cpu_percent: 60         # scheduler none: do not start if loadavg/ncpu above this
-conda_path: ~/miniconda3    # remote conda/micromamba root (informational, exported as MMV_CONDA)
-blender_path: ~/blender-4.2/blender   # remote Blender binary (exported as BLENDER)
+threads: 4                  # threads/cpus per job (runner default: 4)
+max_cpu_percent: 60         # scheduler none: loadavg/ncpu admission threshold (%), not a runtime cap
+conda_path: /opt/conda    # remote conda/micromamba root (informational, exported as MMV_CONDA)
+blender_path: /opt/blender/blender   # remote Blender binary (exported as BLENDER)
 envs:
   render: mmv-render
   tts: mmv-tts

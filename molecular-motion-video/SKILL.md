@@ -5,10 +5,10 @@ description: Produce a professional, narrated, scientifically accurate motion-gr
 
 # Molecular motion video
 
-A gated, iterative protocol for narrated scientific animations. It was distilled from real
-productions (a 30 s, 1080p video abstract with Portuguese narration, and an English showcase of
-salt dissolving driven by molecular dynamics: `examples/salt-dissolving/`). The protocol is application-agnostic: swap the
-chemistry, keep the gates.
+A gated, iterative protocol for narrated scientific animations. Public examples include
+salt dissolving (`examples/salt-dissolving/`) and a substitution reaction
+(`examples/sn2-walden/`). Adapt the chemistry, language, compute resources and visual direction
+to your project while keeping scientific validation and preview approval.
 
 **Core ideas**
 1. **The narration is the clock.** Script → verified voice → `timing.json`. The 3D scene and the
@@ -78,12 +78,12 @@ efficiently with a coding agent: `references/iteration-loop.md`. Run `bash env/d
   (`setuptools<81` is required by the watermarker).
 - ffmpeg ≥ 6, Pillow ≥ 10 (variable fonts via `set_variation_by_axes`), numpy; ASE for `traj_to_npz.py`.
 - For computed motion: an MD engine (OpenMM/GROMACS/LAMMPS) or a QM code with IRC/NEB/frequencies (xTB, ORCA, Gaussian).
-- A coding agent (Codex/Claude) writes the long scene/post scripts from the direction docs;
-  the lead agent writes direction, reviews contact sheets and owns scientific decisions.
+- One agent or a team can implement the scene/post scripts from the direction docs.
+  Assign scientific review and final approval to the people responsible for your project.
 
 ## Non-negotiables
 - Do not render the final before G2. Do not publish claims not validated at G1.
-- No hard cuts/flashes between scenes: one continuous camera move with eased curves.
+- Default visual direction: continuous eased camera moves without hard cuts/flashes. Record any project-specific transition choices in `DIRECTION.md`.
 - Captions inside the title-safe area; labels never overlap each other or the caption band.
 - Never edit computed coordinates to fit the narration; choose the window, camera and speed instead.
 - Keep a single source of truth for colors/fonts (`style.json`) shared by scene and post.

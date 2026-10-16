@@ -35,11 +35,11 @@ Update with `git -C ~/MGE-Skills pull`; the symlinks pick up the changes.
 ## Quick setup
 
 ```bash
-cd MGE-Skills/molecular-motion-video/env
+cd ~/MGE-Skills/molecular-motion-video/env
 conda env create -f environment-render.yml     # or: micromamba create -f ...
 conda env create -f environment-tts.yml
 conda env create -f environment-calc.yml
-# Blender is not on conda: official 4.2 LTS tarball
+# Linux x86_64 example: official Blender 4.2 LTS tarball
 BLENDER_DIR=$HOME/blender; mkdir -p "$BLENDER_DIR"
 curl -L https://download.blender.org/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz | tar -xJ -C "$BLENDER_DIR" --strip-components=1
 export BLENDER="$BLENDER_DIR/blender"
@@ -49,6 +49,48 @@ bash doctor.sh        # checks only, installs nothing; prints OK/MISSING
 Optional cluster: copy `cluster/cluster.example.yaml` to `cluster.yaml`, then
 `python3 cluster/run_remote.py submit <job_dir> -- <command>` (see `status`, `fetch`, `wait`, `--dry-run`).
 Workflow tips: `molecular-motion-video/references/iteration-loop.md`.
+
+## Adapt to your environment
+
+All host aliases and `/opt/...` paths in `cluster/cluster.example.yaml` are fictional. Copy it
+to a local `cluster.yaml` and replace them with your own settings. Run the runner from that
+folder, or pass `--config /path/to/cluster.yaml` before the subcommand. `--dry-run` prints
+commands without connecting. Local configs, job records and generated trajectories are ignored by Git.
+
+| Setting | Default | How to change it |
+|---|---|---|
+| Skill installation directory | `~/.claude/skills` | `CLAUDE_SKILLS_DIR=/path/to/skills ./install.sh` |
+| Remote CPUs per job | 4 | `threads` in `cluster.yaml` (exported as `MMV_THREADS`) |
+| Remote load admission threshold | 60% | `max_cpu_percent`; load average / CPU count, only with `scheduler: none`. This is a start check, not a runtime CPU cap. |
+| OpenMM example threads | 4 | `NT` (legacy option), then `MMV_THREADS` |
+| Blender scene threads | 4 | `--threads N`; also pass Blender `-t N` |
+| Post-production workers | 2 | `--procs N` |
+| Media executables | `ffmpeg`, `ffprobe` on `PATH` | `FFMPEG`, `FFPROBE` (executable paths) |
+| Caption and symbol fonts | `DejaVuSans.ttf`, `DejaVuSans-Bold.ttf` | `FONT`, `SYMBOL_FONT` (font filenames or paths supported by Pillow; install fonts separately) |
+| Background music | None | `MUSIC=/path/to/licensed-music.wav`; narration is still required |
+| Resource checks | 20 GB disk, 8 GB RAM | `MIN_DISK_GB`, `MIN_RAM_GB` for `env/doctor.sh` |
+
+The conda environment names in `env/*.yml` are suggested defaults. Run commands in the
+appropriate environment; no script requires a personal environment name. `ENV_RENDER`,
+`ENV_TTS` and `ENV_CALC` select environment names for `doctor.sh`. Choose local/remote execution,
+concurrency and schedules according to your own hardware and site allocation.
+Scientific parameters and recorded results in the examples describe those demonstrations;
+they are not machine policies. Human scientific review (G1) and preview approval (G2) remain part of the skill.
+
+Existing Portuguese command names are preserved: `montar_sal.py` means “assemble the salt
+video”, `montar_sn2.py` means “assemble the SN2 video”; `--quadros` is the input frames folder,
+`--saida` the output MP4 and `--teste` the self-test. `md_sal.py` is the salt MD simulation, `shots/resumo.json` is the shooting summary,
+and `ITERACAO_SAL2.md` contains salt iteration notes. See the example READMEs for commands.
+
+## Tests
+
+```bash
+python3 -m unittest discover -s molecular-motion-video/cluster -p 'test*.py' -v
+python3 -m unittest discover -s molecular-motion-video/scripts -p 'test*.py' -v
+```
+
+The example runtime tests use NumPy and Pillow from the render environment. They do not
+require Blender, SSH access or a new simulation. This repository has no Node test suite.
 
 ## Principles shared by these skills
 - **Real science first:** geometry from crystallographic or computed data, motion from actual

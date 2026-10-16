@@ -1,6 +1,6 @@
 # Direction — "SN2: the Walden inversion" (scene `sn2_en.py`)
 
-Base: `cenas/sal_en/sal_en.py` (same architecture: point meshes per element + Geometry Nodes,
+Base: `../salt-dissolving/scene/sal_en.py` (same architecture: point meshes per element + Geometry Nodes,
 `frame_change_pre` handler subframe-aware, per-point attributes `highlight`/`glow`/`fade`,
 continuous camera sampled per frame then keyframed, anchors exported per frame, `--check/--preview/--motion/--final`,
 `--frames a-b`, `--threads N`, `--samples N`). Adapt, do not start from zero. Same `style.json` world (copy and extend).

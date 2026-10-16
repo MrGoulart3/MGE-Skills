@@ -54,3 +54,34 @@ An on-screen femtosecond clock shows the **simulated** time, with slow motion ar
 | `media/` | Final 1080p video, poster, GIF |
 
 The trajectory (`traj.npz`) is not stored here. See [`md/DATA_README.md`](md/DATA_README.md).
+
+## Run in your own environment
+
+Regenerate the calculated data using [`md/DATA_README.md`](md/DATA_README.md). From this example
+directory, use the TTS environment to generate narration and timing (timing/audio are not committed):
+
+```bash
+python3 ../../scripts/tts_verified.py --script narration.json --out narration --lang en
+python3 ../../scripts/build_timing.py --narration narration --out timing \
+  --scenes A=1 B=2 C=3 D=4 E=5 F=6 \
+  --events reveal=1:reaction clock=1:femtosecond label_cl=2:chloride label_me=2:methyl \
+  axis=2:opposite bonds=3:bond ts=4:top flat=4:flat flip=5:flip leave=5:bromide \
+  title=6:reaction:end
+blender -b -t 4 -P scene/sn2_en.py -- --check --threads 4
+blender -b -t 4 -P scene/sn2_en.py -- --preview --threads 4
+```
+
+The scene reads `md/` and `timing/`, writes `anchors.json` at the example root and puts frames
+in `render/sn2_en/<mode>/`. Use `--motion` for the full low-resolution preview, assemble it,
+obtain G2 and then use `--final`. In the render environment:
+
+```bash
+python3 post/montar_sn2.py --quadros render/sn2_en/motion --saida preview.mp4 --procs 2
+python3 post/montar_sn2.py --teste --procs 2
+```
+
+`montar_sn2` means “assemble the SN2 video”; `--quadros` selects input frames, `--saida` the
+output and `--teste` the synthetic compositor check (requires generated timing and the scan).
+Set `FONT`/`SYMBOL_FONT` if needed (defaults: DejaVu Sans regular/bold), and optionally `MUSIC`
+to a licensed soundtrack. `FFMPEG`/`FFPROBE` override executables found on `PATH`. Thread counts,
+workers and execution location are your choices; no private assets or personal conda environment are required.

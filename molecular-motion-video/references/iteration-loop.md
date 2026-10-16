@@ -1,8 +1,8 @@
 # Iteration loop: how the lead agent iterates efficiently
 
 What made the two examples (`examples/salt-dissolving`, `examples/sn2-walden`) good was a short,
-repeatable loop with a cheap look at every step. The lead agent (the one that owns the science)
-**looks and decides**; a coding agent **edits code**. Save credits by delegating the long edits.
+repeatable loop with a cheap look at every step. The person or agent responsible for scientific review
+**looks and decides**. One agent can handle the entire loop; a team can split review and implementation.
 
 ## The loop
 1. **Preview key frames** (about 10 stills at 320x180 or 640x360, low samples): `scene.py --preview`.
@@ -15,7 +15,7 @@ repeatable loop with a cheap look at every step. The lead agent (the one that ow
    (If drawtext lacks a font, add `fontfile=/path/to/font.ttf`.) Look at it against `critique-rubric.md`.
 3. **Write `ITERATION_N.md`**: numbered, concrete fixes ("frame 5: ion hidden behind water, move camera 15 degrees
    up", not "improve the camera"), each with the check that proves it is fixed.
-4. **Hand to a coding agent** (Codex / Claude subagent) with: `ITERATION_N.md`, the files it may touch, the rule
+4. **Implement the fixes**, or hand them to a coding agent, with: `ITERATION_N.md`, the files it may touch, the rule
    "edit code only; do not render; validate with `python3 -m py_compile` and `scene.py --check/--teste`".
 5. **Re-run the preview**, compare contact sheets, repeat. Usually 3-5 rounds.
 
@@ -23,9 +23,8 @@ Gates: **G1** = requester validates the scientific claims (before narration/rend
 **G2** = requester WATCHED the low-res motion preview and approved it (before any final render).
 
 ## Delegation economy
-- Lead agent: direction, reading contact sheets, science decisions, final check. Never trust a number or a
-  decision that came only from a cheap/free model.
-- Coding agent: all long edits to `scene.py` / post scripts. Cheap models: summarize logs, simple scripts.
+- If using a team, assign direction, contact-sheet review, scientific decisions and final checks explicitly.
+- Delegate implementation or log summaries when useful; validate scientific numbers independently.
 - Run long jobs detached (`nohup`, or `cluster/run_remote.py`) and poll with a no-AI status script.
 
 ## Checks that assert visual honesty (put them in `--check`)

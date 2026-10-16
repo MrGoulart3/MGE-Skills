@@ -1,6 +1,6 @@
 """SN2: trajetória reativa em Å, Geometry Nodes e timing externo.
 
-Utilitários copiados/adaptados de agua_gas.py (sem importar a cena original).
+Utilitários de timeline, câmera e geometria independentes de outras cenas.
 A cena exige a trajetória real e os eventos calculados.
 """
 from __future__ import annotations
@@ -20,7 +20,8 @@ from mathutils import Vector
 import numpy as np
 
 DIRECTORY = Path(__file__).resolve().parent
-OUTPUT = DIRECTORY.parents[1] / "render" / "sn2_en"
+PROJECT = DIRECTORY.parent
+OUTPUT = PROJECT / "render" / "sn2_en"
 SEED = 104524
 STYLE = json.loads((DIRECTORY / "style.json").read_text())
 RADII = {"C": .55, "Br": 1.05, "Cl": .95, "H": .30, "O": .40}
@@ -621,7 +622,7 @@ def export_anchors(animation) -> None:
         animation.scene.frame_set(frame)
         frames[str(frame)] = animation.anchors()
     payload = dict(fps=animation.timeline.fps, width=1920, height=1080, frames=frames)
-    (DIRECTORY/'anchors.json').write_text(json.dumps(payload, indent=2)+'\n')
+    (PROJECT/'anchors.json').write_text(json.dumps(payload, indent=2)+'\n')
 
 
 def water_visibility_metrics(animation: Animation, *, raw: bool = False) -> float:
@@ -743,8 +744,8 @@ def parse_arguments(timeline: Timeline) -> argparse.Namespace:
 
 def main() -> None:
     global ACTIVE
-    timeline = Timeline.read(DIRECTORY/'timing/timing.json'); args = parse_arguments(timeline)
-    path = args.traj or DIRECTORY/'md/traj.npz'
+    timeline = Timeline.read(PROJECT/'timing/timing.json'); args = parse_arguments(timeline)
+    path = args.traj or PROJECT/'md/traj.npz'
     trajectory = Trajectory(path, args.events)
     mapping = TimeMap(timeline, trajectory)
     bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False)

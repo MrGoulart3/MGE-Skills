@@ -1,9 +1,9 @@
-#!/usr/bin/python3
-"""Post-production of "Salt dissolving" (English showcase of the molecular-motion-video skill; adapted from montar_agua.py).
+#!/usr/bin/env python3
+"""Post-production of "Salt dissolving" (English showcase of the molecular-motion-video skill).
 
 Lê timing/timing.json, timing/words.json, timing/narration.wav e anchors.json (gerados pela skill
-molecular-motion-video e por agua_gas.py). ffmpeg/ffprobe vêm de $FFMPEG/$FFPROBE (padrão: micromamba env motion).
---teste usa somente quadros sintéticos em /tmp."""
+molecular-motion-video e por sal_en.py). ffmpeg/ffprobe vêm de $FFMPEG/$FFPROBE (padrão: PATH).
+--teste usa somente quadros sintéticos no diretório temporário do sistema."""
 
 from __future__ import annotations
 
@@ -23,11 +23,11 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 
-SOX = Path(__file__).resolve().parents[1]  # cenas/agua_gas
-ROOT = SOX.parents[1]
+PROJECT = Path(__file__).resolve().parents[1]
 FPS = 24
-SYMBOL_FONT = Path(os.environ.get("SYMBOL_FONT", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"))
-MUSIC = Path(os.environ.get("MUSIC", str(ROOT / "cenas/hdl_v2/audio/trilha_ambiente.wav")))
+FONT = os.environ.get("FONT", "DejaVuSans.ttf")
+SYMBOL_FONT = os.environ.get("SYMBOL_FONT", "DejaVuSans-Bold.ttf")
+MUSIC = Path(os.environ["MUSIC"]) if os.environ.get("MUSIC") else None
 WHITE = (255, 255, 255, 255)
 AMBER = (242, 193, 78, 255)
 BLUE = (127, 208, 236, 255)
@@ -106,8 +106,8 @@ def _labels(times: dict[str, Any]) -> tuple[Label, ...]:
 
 
 def _load_data() -> dict[str, Any]:
-    times = _read_json(SOX / "timing" / "timing.json")
-    anchors = _read_json(Path(os.environ.get("ANCHORS", str(SOX / "anchors.json"))))
+    times = _read_json(PROJECT / "timing" / "timing.json")
+    anchors = _read_json(Path(os.environ.get("ANCHORS", str(PROJECT / "anchors.json"))))
     if times["fps"] != FPS or anchors["fps"] != FPS:
         raise ValueError("Timing and anchors must be 24 fps.")
     if len(anchors["frames"]) != times["frames"]:
@@ -117,7 +117,7 @@ def _load_data() -> dict[str, Any]:
     if anchors.get("synthetic"):
         raise ValueError("anchors.json comes from SYNTHETIC data; use the real-MD anchors.")
     words = tuple(Word(w["word"], float(w["start"]), float(w["end"]))
-                  for w in _read_json(SOX / "timing" / "words.json"))
+                  for w in _read_json(PROJECT / "timing" / "words.json"))
     if any(not w.text or w.end <= w.start for w in words) or any(
             b.start < a.end - 1e-6 for a, b in zip(words, words[1:])):
         raise ValueError("Tempos de palavras inválidos em words.json.")
@@ -138,17 +138,25 @@ class Painter:
         self.size = size
         self.scale = size[0] / 1920
         self.data = data
-        self.fonts: dict[tuple[float, int], ImageFont.FreeTypeFont] = {}
+        self.fonts: dict[tuple[float, int, bool], ImageFont.FreeTypeFont] = {}
         self.labels = _labels(data["times"])
         self.title_start = data["times"]["events"]["title"]
         self.blocks = self._blocks()
 
-    def _font(self, pixels: float, weight: int) -> ImageFont.FreeTypeFont:
-        key = (pixels, weight)
+    def _font(self, pixels: float, weight: int,
+              symbol: bool = False) -> ImageFont.FreeTypeFont:
+        key = (pixels, weight, symbol)
         if key not in self.fonts:
-            font = ImageFont.truetype(str(ROOT / "assets/fontes/Manrope.ttf"),
+            font = ImageFont.truetype(SYMBOL_FONT if symbol else FONT,
                                       max(1, round(pixels * self.scale)))
-            font.set_variation_by_axes([weight])
+            try:
+                axes = font.get_variation_axes()
+            except OSError:
+                axes = []
+            if axes:
+                values = [weight if axis["name"] == b"Weight" else axis["default"]
+                          for axis in axes]
+                font.set_variation_by_axes(values)
             self.fonts[key] = font
         return self.fonts[key]
 
@@ -227,7 +235,7 @@ class Painter:
         cursor = 0.0
         boxes = []
         for text, pixels, offset in runs:
-            font = self._font(pixels, weight)
+            font = self._font(pixels, weight, symbol=any(c in text for c in "δ−→‡"))
             left, top, right, bottom = font.getbbox(text, anchor="ls")
             boxes.append((cursor + left, top + offset * self.scale,
                           cursor + right, bottom + offset * self.scale))
@@ -241,7 +249,7 @@ class Painter:
         draw = ImageDraw.Draw(layer)
         cursor, baseline = position
         for text, pixels, offset in runs:
-            font = self._font(pixels, weight)
+            font = self._font(pixels, weight, symbol=any(c in text for c in "δ−→‡"))
             draw.text((cursor, baseline + offset * self.scale), text, font=font,
                       fill=color, anchor="ls")
             cursor += font.getlength(text)
@@ -384,7 +392,6 @@ class Painter:
         layer = Image.alpha_composite(self._scrim(), technical)
         layer = Image.alpha_composite(layer, self._clock(frame))
         layer = Image.alpha_composite(layer, caption)
-        # O compositor herdado de hdl_previa.py já contém vinheta.
         return Image.alpha_composite(layer, self._title(time))
 
 
@@ -425,8 +432,7 @@ def _inspect_frames(directory: Path) -> tuple[int, tuple[int, int], str]:
 def _media_command(program: str, arguments: list[str], cache: Path) -> str:
     environment = os.environ.copy()
     environment["XDG_CACHE_HOME"] = str(cache)
-    tool = os.environ.get(program.upper())
-    command = [tool] if tool else ["micromamba", "run", "-n", "motion", program]
+    command = [os.environ.get(program.upper()) or program]
     result = subprocess.run([*command, *arguments], env=environment, check=True,
                             capture_output=True, text=True)
     return result.stdout
@@ -439,7 +445,9 @@ def _encode_arguments(quadros: Path, pattern: str, overlays: Path, output: Path,
                  "-framerate", str(FPS), "-start_number", "1", "-i",
                  str(quadros / pattern), "-framerate", str(FPS),
                  "-start_number", "1", "-i", str(overlays / "%04d.png")]
-    arguments += ["-i", str(SOX / "timing" / "narration.wav"), "-i", str(MUSIC)]
+    arguments += ["-i", str(PROJECT / "timing" / "narration.wav")]
+    if MUSIC is not None:
+        arguments += ["-i", str(MUSIC)]
     filters = ["[0:v][1:v]overlay=shortest=1:format=auto[v]",
                f"anullsrc=r=48000:cl=stereo,atrim=duration={duration}[silence]",
                "[2:a]aresample=48000,aformat=channel_layouts=stereo[narr]",
@@ -452,6 +460,10 @@ def _encode_arguments(quadros: Path, pattern: str, overlays: Path, output: Path,
                "attack=15:release=250[ducked]",
                "[voice][ducked]amix=inputs=2:duration=first:normalize=0,"
                "alimiter=limit=0.95:level=false:latency=true[a]"]
+    if MUSIC is None:
+        filters = filters[:3] + [
+            "[silence][narr]amix=inputs=2:duration=first:normalize=0,"
+            "alimiter=limit=0.95:level=false:latency=true[a]"]
     return arguments + ["-filter_complex_threads", "1", "-filter_complex",
                         ";".join(filters), "-map", "[v]", "-map", "[a]",
                         "-frames:v", str(count), "-t", str(duration),
@@ -488,6 +500,8 @@ def assemble(quadros: Path, saida: Path, procs: int = 2) -> None:
     for frame in range(1, count + 1):
         if str(frame) not in data["anchors"]:
             raise ValueError(f"Âncoras ausentes para o quadro {frame}.")
+    if MUSIC is not None and not MUSIC.is_file():
+        raise ValueError("Trilha definida em MUSIC não encontrada.")
     if saida.suffix.lower() != ".mp4":
         raise ValueError("A saída deve ter extensão .mp4.")
     saida.parent.mkdir(parents=True, exist_ok=True)
@@ -515,7 +529,7 @@ def assemble(quadros: Path, saida: Path, procs: int = 2) -> None:
 
 
 def self_test(procs: int) -> None:
-    """Testa todas as janelas gráficas e codifica 30 PNGs pretos em /tmp."""
+    """Testa todas as janelas gráficas e codifica 30 PNGs pretos no diretório temporário do sistema."""
     data = _load_data()
     painter = Painter((640, 360), data)
     visible_labels: set[str] = set()
@@ -530,11 +544,11 @@ def self_test(procs: int) -> None:
             raise AssertionError("Legenda visível durante o título.")
     if visible_labels != {label.name for label in painter.labels}:
         raise AssertionError("Algum rótulo não foi exercitado pelo teste.")
-    with tempfile.TemporaryDirectory(prefix="sal-teste-", dir="/tmp") as temporary:
+    with tempfile.TemporaryDirectory(prefix="sal-teste-") as temporary:
         quadros = Path(temporary)
         for frame in range(1, 31):
             Image.new("RGB", (640, 360), "black").save(quadros / f"{frame:04d}.png")
-        assemble(quadros, Path("/tmp/sal_pos_teste.mp4"), procs)
+        assemble(quadros, quadros / "teste.mp4", procs)
 
 
 def main() -> None:
@@ -543,7 +557,7 @@ def main() -> None:
     parser.add_argument("--quadros", type=Path, help="Pasta com PNGs desde 0001.png")
     parser.add_argument("--saida", type=Path, help="MP4 de saída")
     parser.add_argument("--procs", type=int, default=2, help="Processos de desenho")
-    parser.add_argument("--teste", action="store_true", help="Teste sintético em /tmp")
+    parser.add_argument("--teste", action="store_true", help="Teste sintético no diretório temporário do sistema")
     args = parser.parse_args()
     if args.procs < 1:
         parser.error("--procs deve ser positivo")

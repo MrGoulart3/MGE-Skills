@@ -27,7 +27,7 @@ nions = 64
 log('atoms', top.getNumAtoms(), 'waters', (top.getNumAtoms() - nions) // 3)
 system = ff.createSystem(top, nonbondedMethod=app.PME, nonbondedCutoff=1.0 * u.nanometer,
                          constraints=app.HBonds, rigidWater=True)
-import os; prop = {'Threads': os.environ.get('NT', '16')}
+import os; prop = {'Threads': os.environ.get('NT') or os.environ.get('MMV_THREADS', '4')}
 plat = mm.Platform.getPlatformByName('CPU')
 
 def mk(temp, npt):

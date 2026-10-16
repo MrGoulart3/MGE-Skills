@@ -1,6 +1,6 @@
 """Salt dissolving: trajetória em Å, Geometry Nodes e timing externo.
 
-Utilitários copiados/adaptados de agua_gas.py (sem importar a cena original).
+Utilitários de timeline, câmera e geometria independentes de outras cenas.
 Dados sintéticos servem apenas para revisão visual, nunca para alegações de MD.
 """
 from __future__ import annotations
@@ -20,11 +20,12 @@ from mathutils import Vector
 import numpy as np
 
 DIRECTORY = Path(__file__).resolve().parent
-OUTPUT = DIRECTORY.parents[1] / "render" / "sal_en"
+PROJECT = DIRECTORY.parent
+OUTPUT = PROJECT / "render" / "sal_en"
 SEED = 104524
 STYLE = json.loads((DIRECTORY / "style.json").read_text())
 RADII = {"Na": 0.62, "Cl": 1.05, "O": 0.40, "H": 0.24}
-# v2 (14/10): close no íon que sai em E (raio da 1ª camada) e close da água em destaque mantido até 90% de C.
+# v2: close no íon que sai em E (raio da 1ª camada) e close da água em destaque mantido até 90% de C.
 E_RADIUS, E_HEIGHT, HERO_HOLD = 5.0, 0.45, 0.90
 
 
@@ -741,7 +742,7 @@ def export_anchors(animation: Animation) -> None:
         frames[str(frame)] = {**animation.anchors(), 'md_time_ps': animation.mapping(t.seconds(frame))}
     payload = {'fps': t.fps, 'width': 1920, 'height': 1080, 'synthetic': animation.md.synthetic,
                'trajectory': str(animation.md_path), 'frames': frames}
-    (DIRECTORY / 'anchors.json').write_text(json.dumps(payload, indent=2)+'\n')
+    (PROJECT / 'anchors.json').write_text(json.dumps(payload, indent=2)+'\n')
 
 
 def projected_radius(scene: bpy.types.Scene, position: np.ndarray, radius: float) -> float:
@@ -909,10 +910,10 @@ def parse_arguments(timeline: Timeline) -> argparse.Namespace:
 
 def main() -> None:
     global ACTIVE
-    timeline = Timeline.read(DIRECTORY/'timing/timing.json'); args = parse_arguments(timeline)
-    path = args.traj or DIRECTORY/'md/traj.npz'
+    timeline = Timeline.read(PROJECT/'timing/timing.json'); args = parse_arguments(timeline)
+    path = args.traj or PROJECT/'md/traj.npz'
     if args.traj is None and not path.exists():
-        path = DIRECTORY/'md/traj_fake.npz'
+        path = PROJECT/'md/traj_fake.npz'
         print('AVISO: MD real ausente; usando trajetória SINTÉTICA.', flush=True)
     trajectory = Trajectory(path, args.events)
     mapping = TimeMap(timeline, trajectory)
