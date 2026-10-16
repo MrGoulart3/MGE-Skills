@@ -16,6 +16,10 @@ and scripts) that Claude Code, or any agent that reads `SKILL.md`, can load.
 
 *Salt dissolving*, made with `molecular-motion-video`. A NaCl nanocrystal dissolves in water, and every atom follows a real OpenMM trajectory.
 
+[![SN2: the Walden inversion, a reactive xTB trajectory shot from the transition state](molecular-motion-video/examples/sn2-walden/media/sn2_walden.gif)](molecular-motion-video/examples/sn2-walden/)
+
+*SN2: the Walden inversion*, made with `molecular-motion-video`. Cl⁻ attacks CH₃Br from the back in water, and the atoms follow a real GFN2-xTB trajectory launched from the transition state.
+
 More skills will be added as subfolders.
 
 ## Install (Claude Code)

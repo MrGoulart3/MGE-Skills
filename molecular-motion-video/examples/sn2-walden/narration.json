@@ -1,0 +1,58 @@
+[
+ {
+  "text": "This is a chemical reaction, replayed from a real simulation, femtosecond by femtosecond.",
+  "keywords": [
+   "reaction",
+   "simulation",
+   "femtosecond"
+  ]
+ },
+ {
+  "text": "A chloride ion closes in on methyl bromide, always from the side opposite the bromine.",
+  "keywords": [
+   "chloride",
+   "methyl",
+   "opposite",
+   "bromine"
+  ]
+ },
+ {
+  "text": "As the new carbon–chlorine bond forms, the old carbon–bromine bond stretches.",
+  "keywords": [
+   "carbon",
+   "chlorine",
+   "bromine",
+   "stretches"
+  ],
+  "tts": [
+   "As the new carbon chlorine bond forms, the old carbon bromeen bond stretches.",
+   "As the new carbon chlorine bond forms, the old carbon, bro-meen, bond stretches.",
+   "As the new carbon chlorine bond forms, the old carbon bromine bond stretches."
+  ]
+ },
+ {
+  "text": "At the top of the energy barrier, the carbon is shared, and its three hydrogens lie flat.",
+  "keywords": [
+   "top",
+   "barrier",
+   "shared",
+   "flat"
+  ]
+ },
+ {
+  "text": "Then they flip, like an umbrella in the wind, and bromide is pushed out.",
+  "keywords": [
+   "flip",
+   "umbrella",
+   "bromide"
+  ]
+ },
+ {
+  "text": "One step, one inversion. That is an SN2 reaction.",
+  "keywords": [
+   "inversion",
+   "reaction"
+  ],
+  "tts": "One step, one inversion. That is an S N two reaction."
+ }
+]

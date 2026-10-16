@@ -1,0 +1,36 @@
+{
+ "source": "shots/shot_5_0.npz",
+ "xi_ts": 0.15,
+ "events": {
+  "approach": {
+   "frame": 304,
+   "desc": "d(C–Cl) < 4.0 Å",
+   "time_fs": -196.0
+  },
+  "backside": {
+   "frame": 385,
+   "desc": "Cl–C–Br angle > 150° (backside alignment)",
+   "time_fs": -115.0
+  },
+  "ts": {
+   "frame": 501,
+   "desc": "ξ = d(C–Br) − d(C–Cl) crosses ξ‡ = +0.15 Å (scan maximum)",
+   "time_fs": 1.0
+  },
+  "bond": {
+   "frame": 536,
+   "desc": "d(C–Cl) < 2.0 Å after the TS",
+   "time_fs": 36.0
+  },
+  "flip": {
+   "frame": 518,
+   "desc": "umbrella inversion: C crosses the H3 plane and stays (50 fs)",
+   "time_fs": 18.0
+  },
+  "leave": {
+   "frame": 552,
+   "desc": "d(C–Br) > 3.0 Å after the TS",
+   "time_fs": 52.0
+  }
+ }
+}
