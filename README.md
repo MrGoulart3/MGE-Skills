@@ -1,10 +1,13 @@
-# MGE Skills
+# MGE Molecular Motion Video
 
 **English** · [Português](README.pt-BR.md)
 
-Agent skills for computational chemistry and science communication, built while doing real
-research work. Each folder is one self-contained skill (a `SKILL.md` plus references, templates
-and scripts) that Claude Code, or any agent that reads `SKILL.md`, can load.
+An agent skill for narrated molecular motion videos, built while doing real research work. The
+`molecular-motion-video/` folder is a self-contained skill (a `SKILL.md` plus references,
+templates and scripts) that Claude Code, or any agent that reads `SKILL.md`, can load.
+
+For presentation slides, see [MGE-SciSlides](https://github.com/MrGoulart3/MGE-SciSlides); for
+animated matplotlib charts, see [mpl-animation](https://github.com/hugogontijomachado/mpl-animation).
 
 | Skill | What it does |
 |---|---|
@@ -20,22 +23,20 @@ and scripts) that Claude Code, or any agent that reads `SKILL.md`, can load.
 
 *SN2: the Walden inversion*, made with `molecular-motion-video`. Cl⁻ attacks CH₃Br from the back in water, and the atoms follow a real GFN2-xTB trajectory launched from the transition state.
 
-More skills will be added as subfolders.
-
 ## Install (Claude Code)
 
 ```bash
-git clone https://github.com/MrGoulart3/MGE-Skills.git ~/MGE-Skills
-~/MGE-Skills/install.sh                          # link every skill into ~/.claude/skills/
-~/MGE-Skills/install.sh molecular-motion-video   # or just one
+git clone https://github.com/MrGoulart3/MGE-MolecularMotionVideo.git ~/MGE-MolecularMotionVideo
+~/MGE-MolecularMotionVideo/install.sh                          # link every skill into ~/.claude/skills/
+~/MGE-MolecularMotionVideo/install.sh molecular-motion-video   # or just one
 ```
 
-Update with `git -C ~/MGE-Skills pull`; the symlinks pick up the changes.
+Update with `git -C ~/MGE-MolecularMotionVideo pull`; the symlinks pick up the changes.
 
 ## Quick setup
 
 ```bash
-cd ~/MGE-Skills/molecular-motion-video/env
+cd ~/MGE-MolecularMotionVideo/molecular-motion-video/env
 conda env create -f environment-render.yml     # or: micromamba create -f ...
 conda env create -f environment-tts.yml
 conda env create -f environment-calc.yml

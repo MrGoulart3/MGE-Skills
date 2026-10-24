@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Link MGE skills into ~/.claude/skills (Claude Code). Usage: ./install.sh [skill ...]  (default: all)
+# Link the skill into ~/.claude/skills (Claude Code). Usage: ./install.sh [skill ...]  (default: all)
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 dest="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"

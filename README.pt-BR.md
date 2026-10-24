@@ -1,10 +1,14 @@
-# MGE Skills
+# MGE Molecular Motion Video
 
 [English](README.md) · **Português**
 
-Skills de agente para química computacional e divulgação científica, criadas durante trabalho
-real de pesquisa. Cada pasta é uma skill independente (um `SKILL.md` com referências, modelos e
-scripts) que o Claude Code, ou qualquer agente que leia `SKILL.md`, pode carregar.
+Uma skill de agente para vídeos narrados de movimento molecular, criada durante trabalho real de
+pesquisa. A pasta `molecular-motion-video/` é uma skill independente (um `SKILL.md` com
+referências, modelos e scripts) que o Claude Code, ou qualquer agente que leia `SKILL.md`, pode
+carregar.
+
+Para slides de apresentação, veja o [MGE-SciSlides](https://github.com/MrGoulart3/MGE-SciSlides);
+para gráficos animados com matplotlib, o [mpl-animation](https://github.com/hugogontijomachado/mpl-animation).
 
 | Skill | O que faz |
 |---|---|
@@ -25,17 +29,17 @@ Novas skills entram como subpastas.
 ## Instalação (Claude Code)
 
 ```bash
-git clone https://github.com/MrGoulart3/MGE-Skills.git ~/MGE-Skills
-~/MGE-Skills/install.sh                          # liga todas as skills em ~/.claude/skills/
-~/MGE-Skills/install.sh molecular-motion-video   # ou só uma
+git clone https://github.com/MrGoulart3/MGE-MolecularMotionVideo.git ~/MGE-MolecularMotionVideo
+~/MGE-MolecularMotionVideo/install.sh                          # liga todas as skills em ~/.claude/skills/
+~/MGE-MolecularMotionVideo/install.sh molecular-motion-video   # ou só uma
 ```
 
-Para atualizar: `git -C ~/MGE-Skills pull` (os links simbólicos acompanham).
+Para atualizar: `git -C ~/MGE-MolecularMotionVideo pull` (os links simbólicos acompanham).
 
 ## Instalação rápida
 
 ```bash
-cd ~/MGE-Skills/molecular-motion-video/env
+cd ~/MGE-MolecularMotionVideo/molecular-motion-video/env
 conda env create -f environment-render.yml     # ou: micromamba create -f ...
 conda env create -f environment-tts.yml
 conda env create -f environment-calc.yml
